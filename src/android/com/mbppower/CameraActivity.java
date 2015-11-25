@@ -28,6 +28,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.util.Base64;
 
 import org.apache.cordova.LOG;
 
@@ -188,12 +189,12 @@ public class CameraActivity extends Fragment {
 	        });
         }
     }
-	
+
     private void setDefaultCameraId(){
-		
+
 		// Find the total number of cameras available
         numberOfCameras = Camera.getNumberOfCameras();
-		
+
 		int camId = defaultCamera.equals("front") ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
 
 		// Find the ID of the default camera
@@ -206,7 +207,7 @@ public class CameraActivity extends Fragment {
 			}
 		}
 	}
-	
+
     @Override
     public void onResume() {
         super.onResume();
@@ -218,7 +219,7 @@ public class CameraActivity extends Fragment {
         }
 
         cameraCurrentlyLocked = defaultCameraId;
-        
+
         if(mPreview.mPreviewSize == null){
 		mPreview.setCamera(mCamera, cameraCurrentlyLocked);
 	} else {
@@ -316,14 +317,14 @@ public class CameraActivity extends Fragment {
         canvas.drawBitmap(bitmap, -rect.left, -rect.top, null);
         return ret;
     }
-	
+
 	public void takePicture(final double maxWidth, final double maxHeight){
 		final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
 		if(mPreview != null) {
-			
+
 			if(!canTakePicture)
 				return;
-			
+
 			canTakePicture = false;
 
 			mPreview.setOneShotPreviewCallback(new Camera.PreviewCallback() {
@@ -400,10 +401,13 @@ public class CameraActivity extends Fragment {
 		    public void run() {
 
 			    try {
-				    final File picFile = storeImage(picture, "_preview");
-				    final File originalPictureFile = storeImage(originalPicture, "_original");
+					Bitmap ing = originalPicture;
+				    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				    ing.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+				    byte[] b = baos.toByteArray();
+				    String imageEncoded = Base64.encodeToString(b,Base64.DEFAULT);
 
-					eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
+					eventListener.onPictureTaken(imageEncoded, imageEncoded);
 
 				    getActivity().runOnUiThread(new Runnable() {
 					    @Override
@@ -480,7 +484,7 @@ public class CameraActivity extends Fragment {
 		}
 		return inSampleSize;
 	}
-	
+
     private Bitmap loadBitmapFromView(View v) {
         Bitmap b = Bitmap.createBitmap( v.getMeasuredWidth(), v.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
@@ -488,7 +492,7 @@ public class CameraActivity extends Fragment {
         v.draw(c);
         return b;
     }
-    
+
     @Override
     public void onDestroy() {
         super.onDestroy();
