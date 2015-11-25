@@ -5,6 +5,7 @@ import android.app.FragmentTransaction;
 import android.hardware.Camera;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.graphics.Color;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -104,7 +105,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					}
 					//display camera bellow the webview
 					if(toBack){
-						webView.getView().setBackgroundColor(0x00000000);
+						webView.getView().setBackgroundColor(Color.TRANSPARENT);
 						((ViewGroup)webView.getView()).bringToFront();
 					}
 					else{
